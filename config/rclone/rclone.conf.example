@@ -1,0 +1,30 @@
+[cloud1]
+type = drive
+client_id = YOUR_CLIENT_ID.apps.googleusercontent.com
+client_secret = YOUR_CLIENT_SECRET
+token = {"access_token":"...","token_type":"Bearer","refresh_token":"...","expiry":"...","expires_in":3599}
+
+[cloud1-crypt]
+type = crypt
+remote = cloud1:encrypted
+password = YOUR_CRYPT_PASSWORD
+password2 = YOUR_CRYPT_SALT
+
+[cloud2]
+type = drive
+client_id = YOUR_CLIENT_ID.apps.googleusercontent.com
+client_secret = YOUR_CLIENT_SECRET
+token = {"access_token":"...","token_type":"Bearer","refresh_token":"...","expiry":"...","expires_in":3599}
+
+[cloud2-crypt]
+type = crypt
+remote = cloud2:encrypted
+password = YOUR_CRYPT_PASSWORD
+password2 = YOUR_CRYPT_SALT
+
+[pravaha-union]
+type = union
+upstreams = cloud1-crypt: cloud2-crypt:
+action_policy = epall
+create_policy = mfs
+search_policy = all

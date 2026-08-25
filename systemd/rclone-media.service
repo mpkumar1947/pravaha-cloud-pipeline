@@ -1,0 +1,35 @@
+[Unit]
+Description=Rclone Cloud Storage Mount (Pravaha)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStartPre=/bin/bash -c 'mkdir -p /var/cache/rclone && fusermount -uz /mnt/vault 2>/dev/null || true'
+ExecStart=/usr/bin/rclone mount pravaha-union: /mnt/vault \
+  --config /root/.config/rclone/rclone.conf \
+  --allow-non-empty \
+  --allow-other \
+  --vfs-cache-mode writes \
+  --vfs-cache-max-size 30G \
+  --vfs-write-back 2s \
+  --vfs-cache-poll-interval 10s \
+  --vfs-cache-max-age 24h \
+  --dir-cache-time 8760h \
+  --drive-chunk-size 256M \
+  --disable-http2 \
+  --vfs-read-ahead 0 \
+  --buffer-size 32M \
+  --no-modtime \
+  --cache-dir /var/cache/rclone \
+  --log-level INFO
+# Optional: restart dependent containers once the mount is up
+ExecStartPost=/bin/bash -c "sleep 8 && cd /opt/media-stack && docker compose restart tv-manager movie-manager media-server download-client 2>/dev/null || true"
+ExecStop=/bin/fusermount -u /mnt/vault
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
